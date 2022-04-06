@@ -1,5 +1,7 @@
 package com.example.loginapp
 
+import android.os.Handler
+
 class LoginFormContract {
 
     interface View {
@@ -8,6 +10,7 @@ class LoginFormContract {
         fun showProcessLoading(isLoading: Boolean)
         fun showRegistration()
         fun showForgotPassword()
+        fun getHandler(): Handler
     }
 
     interface Presenter {

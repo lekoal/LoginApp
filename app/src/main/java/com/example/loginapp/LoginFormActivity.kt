@@ -4,9 +4,12 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
 import com.example.loginapp.databinding.ActivityLoginFormBinding
 
@@ -36,18 +39,21 @@ class LoginFormActivity : AppCompatActivity(), LoginFormContract.View {
         }
     }
 
+    @MainThread
     override fun setEnterSuccess(enterSuccessText: String) {
         binding.enterSuccessImage.visibility = View.VISIBLE
         Toast.makeText(this, enterSuccessText, Toast.LENGTH_SHORT).show()
         onScreenTouch()
     }
 
+    @MainThread
     override fun setEnterError(enterErrorText: String) {
         binding.enterErrorImage.visibility = View.VISIBLE
         Toast.makeText(this, enterErrorText, Toast.LENGTH_SHORT).show()
         onScreenTouch()
     }
 
+    @MainThread
     override fun showProcessLoading(isLoading: Boolean) {
         hideKeyboard()
         if (isLoading) {
@@ -59,12 +65,18 @@ class LoginFormActivity : AppCompatActivity(), LoginFormContract.View {
         }
     }
 
+    @MainThread
     override fun showRegistration() {
         Toast.makeText(this, getString(R.string.registration_message), Toast.LENGTH_SHORT).show()
     }
 
+    @MainThread
     override fun showForgotPassword() {
         Toast.makeText(this, getString(R.string.forgot_password_message), Toast.LENGTH_SHORT).show()
+    }
+
+    override fun getHandler(): Handler {
+        return Handler(Looper.getMainLooper())
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -87,7 +99,8 @@ class LoginFormActivity : AppCompatActivity(), LoginFormContract.View {
     }
 
     private fun Context.hideKeyboard(view: View) {
-        val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        val inputMethodManager =
+            getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 }

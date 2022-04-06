@@ -1,6 +1,6 @@
 package com.example.loginapp
 
-import android.os.CountDownTimer
+import java.lang.Thread.sleep
 
 class LoginFormPresenter : LoginFormContract.Presenter {
 
@@ -12,23 +12,17 @@ class LoginFormPresenter : LoginFormContract.Presenter {
 
     override fun onEnter(username: String, password: String) {
         view?.showProcessLoading(true)
-        if (username == "admin" && password == "admin") {
-            object : CountDownTimer(2000, 2000) {
-                override fun onTick(p0: Long) {}
-                override fun onFinish() {
-                    view?.showProcessLoading(false)
+        Thread {
+            sleep(2000)
+            view?.getHandler()?.post {
+                view?.showProcessLoading(false)
+                if (username == "admin" && password == "admin") {
                     view?.setEnterSuccess("Вход выполнен")
-                }
-            }.start()
-        } else {
-            object : CountDownTimer(2000, 2000) {
-                override fun onTick(p0: Long) {}
-                override fun onFinish() {
-                    view?.showProcessLoading(false)
+                } else {
                     view?.setEnterError("Неверный логин или пароль!")
                 }
-            }.start()
-        }
+            }
+        }.start()
     }
 
     override fun onRegistration() {
