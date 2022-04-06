@@ -1,8 +1,9 @@
 package com.example.loginapp.ui.login
 
-import com.example.loginapp.domain.LoginFormApi
+import com.example.loginapp.domain.LoginFormUsecase
 
-class LoginFormPresenter(private val api: LoginFormApi) : LoginFormContract.Presenter {
+class LoginFormPresenter(private val loginFormUsecase: LoginFormUsecase) :
+    LoginFormContract.Presenter {
 
     private var view: LoginFormContract.View? = null
 
@@ -24,19 +25,17 @@ class LoginFormPresenter(private val api: LoginFormApi) : LoginFormContract.Pres
 
     override fun onEnter(username: String, password: String) {
         view?.showProcessLoading(true)
-        Thread {
-            val isSuccess = api.enter(username, password)
-            view?.getHandler()?.post {
-                view?.showProcessLoading(false)
-                if (isSuccess) {
-                    isEnterSuccess = true
-                    view?.setEnterSuccess("Вход выполнен")
-                } else {
-                    isEnterSuccess = false
-                    view?.setEnterError("Неверный логин или пароль!")
-                }
+
+        loginFormUsecase.enter(username, password) { result ->
+            view?.showProcessLoading(false)
+            if (result) {
+                isEnterSuccess = true
+                view?.setEnterSuccess("Вход выполнен")
+            } else {
+                isEnterSuccess = false
+                view?.setEnterError("Неверный логин или пароль!")
             }
-        }.start()
+        }
     }
 
     override fun onRegistration() {

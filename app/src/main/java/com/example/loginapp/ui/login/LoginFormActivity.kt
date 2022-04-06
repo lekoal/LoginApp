@@ -11,7 +11,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
-import com.example.loginapp.App
 import com.example.loginapp.R
 import com.example.loginapp.app
 import com.example.loginapp.databinding.ActivityLoginFormBinding
@@ -111,7 +110,8 @@ class LoginFormActivity : AppCompatActivity(), LoginFormContract.View {
 
     private fun restoreLoginFormPresenter(): LoginFormPresenter {
         val currentPresenter = lastCustomNonConfigurationInstance as? LoginFormPresenter
-        return currentPresenter ?: LoginFormPresenter(app.api)
+
+        return currentPresenter ?: LoginFormPresenter(app.loginFormUsecase)
     }
 
     @Deprecated("Deprecated in Java")
