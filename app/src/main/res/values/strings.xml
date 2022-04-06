@@ -7,4 +7,6 @@
     <string name="registration_button_text">Регистрация</string>
     <string name="enter_button_text">Войти</string>
     <string name="forgot_password_button_text">восстановить пароль</string>
+    <string name="registration_message">Нажата кнопка регистрации!</string>
+    <string name="forgot_password_message">Нажата кнопка восстановления пароля!</string>
 </resources>
