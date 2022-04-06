@@ -6,7 +6,6 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -34,8 +33,6 @@ class LoginFormActivity : AppCompatActivity(), LoginFormContract.View {
         }
 
         presenter?.onViewAttach(this)
-
-        Log.i("IS_RESTORED", savedInstanceState?.getBoolean(IS_PRESENTER_RESTORED).toString())
 
         binding.enterButton.setOnClickListener {
             isButtonClicked = true

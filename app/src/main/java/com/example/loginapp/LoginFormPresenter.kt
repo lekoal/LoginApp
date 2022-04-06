@@ -1,7 +1,5 @@
 package com.example.loginapp
 
-import java.lang.Thread.sleep
-
 class LoginFormPresenter : LoginFormContract.Presenter {
 
     private var view: LoginFormContract.View? = null
@@ -9,6 +7,8 @@ class LoginFormPresenter : LoginFormContract.Presenter {
     private var isEnterSuccess = false
 
     private var isRestored = false
+
+    private val api: LoginFormApi = MockLoginFormApiImpl()
 
     override fun onViewAttach(view: LoginFormContract.View) {
         this.view = view
@@ -25,10 +25,10 @@ class LoginFormPresenter : LoginFormContract.Presenter {
     override fun onEnter(username: String, password: String) {
         view?.showProcessLoading(true)
         Thread {
-            sleep(2000)
+            val isSuccess = api.enter(username, password)
             view?.getHandler()?.post {
                 view?.showProcessLoading(false)
-                if (username == "admin" && password == "admin") {
+                if (isSuccess) {
                     isEnterSuccess = true
                     view?.setEnterSuccess("Вход выполнен")
                 } else {
