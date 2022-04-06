@@ -1,4 +1,4 @@
-package com.example.loginapp
+package com.example.loginapp.ui.login
 
 import android.os.Handler
 

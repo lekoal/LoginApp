@@ -1,4 +1,6 @@
-package com.example.loginapp
+package com.example.loginapp.data
+
+import com.example.loginapp.domain.LoginFormApi
 
 class MockLoginFormApiImpl : LoginFormApi {
 

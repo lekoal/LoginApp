@@ -1,4 +1,4 @@
-package com.example.loginapp
+package com.example.loginapp.domain
 
 interface LoginFormApi {
     fun enter(username: String, password: String): Boolean

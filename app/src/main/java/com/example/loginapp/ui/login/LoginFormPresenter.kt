@@ -1,14 +1,14 @@
-package com.example.loginapp
+package com.example.loginapp.ui.login
 
-class LoginFormPresenter : LoginFormContract.Presenter {
+import com.example.loginapp.domain.LoginFormApi
+
+class LoginFormPresenter(private val api: LoginFormApi) : LoginFormContract.Presenter {
 
     private var view: LoginFormContract.View? = null
 
     private var isEnterSuccess = false
 
     private var isRestored = false
-
-    private val api: LoginFormApi = MockLoginFormApiImpl()
 
     override fun onViewAttach(view: LoginFormContract.View) {
         this.view = view
