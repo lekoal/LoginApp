@@ -1,19 +1,39 @@
 package com.example.loginapp
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.loginapp.databinding.ActivityLoginFormBinding
 
 class LoginFormActivity : AppCompatActivity(), LoginFormContract.View {
     private lateinit var binding: ActivityLoginFormBinding
+    private var presenter: LoginFormContract.Presenter? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginFormBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        presenter = LoginFormPresenter()
+        presenter?.onViewAttach(this)
+
+        binding.enterButton.setOnClickListener {
+            presenter?.onEnter(
+                binding.usernameEditText.text.toString(),
+                binding.passwordEditText.text.toString()
+            )
+        }
+        binding.registrationButton.setOnClickListener {
+            presenter?.onRegistration()
+        }
+        binding.forgotPasswordButton.setOnClickListener {
+            presenter?.onForgotPassword()
+        }
     }
 
     override fun setEnterSuccess(enterSuccessText: String) {
@@ -29,6 +49,7 @@ class LoginFormActivity : AppCompatActivity(), LoginFormContract.View {
     }
 
     override fun showProcessLoading(isLoading: Boolean) {
+        hideKeyboard()
         if (isLoading) {
             viewElementsDisable(true)
             binding.loadingProcessContainer.visibility = View.VISIBLE
@@ -59,5 +80,14 @@ class LoginFormActivity : AppCompatActivity(), LoginFormContract.View {
 
     private fun viewElementsDisable(isDisable: Boolean) {
         binding.activityLoginFormContainer.isEnabled = !isDisable
+    }
+
+    private fun Activity.hideKeyboard() {
+        hideKeyboard(currentFocus ?: View(this))
+    }
+
+    private fun Context.hideKeyboard(view: View) {
+        val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 }

@@ -2,7 +2,7 @@ package com.example.loginapp
 
 import android.os.CountDownTimer
 
-class LoginFormPresenter: LoginFormContract.Presenter {
+class LoginFormPresenter : LoginFormContract.Presenter {
 
     private var view: LoginFormContract.View? = null
 
