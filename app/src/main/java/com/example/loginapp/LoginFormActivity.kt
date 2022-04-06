@@ -22,8 +22,14 @@ class LoginFormActivity : AppCompatActivity(), LoginFormContract.View {
         binding = ActivityLoginFormBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        presenter = LoginFormPresenter()
-        presenter?.onViewAttach(this)
+        presenter = restoreLoginFormPresenter()
+
+        if (savedInstanceState?.isEmpty == false) {
+            presenter?.onViewAttach(this, true)
+        } else {
+            presenter?.onViewAttach(this, false)
+        }
+
 
         binding.enterButton.setOnClickListener {
             presenter?.onEnter(
@@ -40,16 +46,18 @@ class LoginFormActivity : AppCompatActivity(), LoginFormContract.View {
     }
 
     @MainThread
-    override fun setEnterSuccess(enterSuccessText: String) {
+    override fun setEnterSuccess(enterSuccessText: String, isRestored: Boolean) {
+        binding.loadingProcessContainer.visibility = View.VISIBLE
         binding.enterSuccessImage.visibility = View.VISIBLE
-        Toast.makeText(this, enterSuccessText, Toast.LENGTH_SHORT).show()
+        if (!isRestored) Toast.makeText(this, enterSuccessText, Toast.LENGTH_SHORT).show()
         onScreenTouch()
     }
 
     @MainThread
-    override fun setEnterError(enterErrorText: String) {
+    override fun setEnterError(enterErrorText: String, isRestored: Boolean) {
+        binding.loadingProcessContainer.visibility = View.VISIBLE
         binding.enterErrorImage.visibility = View.VISIBLE
-        Toast.makeText(this, enterErrorText, Toast.LENGTH_SHORT).show()
+        if (!isRestored) Toast.makeText(this, enterErrorText, Toast.LENGTH_SHORT).show()
         onScreenTouch()
     }
 
@@ -92,6 +100,16 @@ class LoginFormActivity : AppCompatActivity(), LoginFormContract.View {
 
     private fun viewElementsDisable(isDisable: Boolean) {
         binding.activityLoginFormContainer.isEnabled = !isDisable
+    }
+
+    private fun restoreLoginFormPresenter(): LoginFormPresenter {
+        val currentPresenter = lastCustomNonConfigurationInstance as? LoginFormPresenter
+        return currentPresenter ?: LoginFormPresenter()
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onRetainCustomNonConfigurationInstance(): Any? {
+        return presenter
     }
 
     private fun Activity.hideKeyboard() {

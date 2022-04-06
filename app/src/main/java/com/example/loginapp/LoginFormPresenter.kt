@@ -6,8 +6,15 @@ class LoginFormPresenter : LoginFormContract.Presenter {
 
     private var view: LoginFormContract.View? = null
 
-    override fun onViewAttach(view: LoginFormContract.View) {
+    private var isEnterSuccess = false
+
+    override fun onViewAttach(view: LoginFormContract.View, isRestored: Boolean) {
         this.view = view
+        if (isRestored && isEnterSuccess) view.setEnterSuccess("Вход выполнен", true)
+        else if (isRestored && !isEnterSuccess) view.setEnterError(
+            "Неверный логин или пароль!",
+            true
+        )
     }
 
     override fun onEnter(username: String, password: String) {
@@ -17,8 +24,10 @@ class LoginFormPresenter : LoginFormContract.Presenter {
             view?.getHandler()?.post {
                 view?.showProcessLoading(false)
                 if (username == "admin" && password == "admin") {
+                    isEnterSuccess = true
                     view?.setEnterSuccess("Вход выполнен")
                 } else {
+                    isEnterSuccess = false
                     view?.setEnterError("Неверный логин или пароль!")
                 }
             }

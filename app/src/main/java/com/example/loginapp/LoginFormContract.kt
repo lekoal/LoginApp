@@ -5,8 +5,8 @@ import android.os.Handler
 class LoginFormContract {
 
     interface View {
-        fun setEnterSuccess(enterSuccessText: String)
-        fun setEnterError(enterErrorText: String)
+        fun setEnterSuccess(enterSuccessText: String, isRestored: Boolean = false)
+        fun setEnterError(enterErrorText: String, isRestored: Boolean = false)
         fun showProcessLoading(isLoading: Boolean)
         fun showRegistration()
         fun showForgotPassword()
@@ -14,7 +14,7 @@ class LoginFormContract {
     }
 
     interface Presenter {
-        fun onViewAttach(view: View)
+        fun onViewAttach(view: View, isRestored: Boolean)
         fun onEnter(username: String, password: String)
         fun onRegistration()
         fun onForgotPassword()
