@@ -14,9 +14,10 @@ class LoginFormContract {
     }
 
     interface Presenter {
-        fun onViewAttach(view: View, isRestored: Boolean)
+        fun onViewAttach(view: View)
         fun onEnter(username: String, password: String)
         fun onRegistration()
         fun onForgotPassword()
+        fun onRestored(isRestored: Boolean)
     }
 }

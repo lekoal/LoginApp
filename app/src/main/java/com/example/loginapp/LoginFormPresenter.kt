@@ -8,9 +8,14 @@ class LoginFormPresenter : LoginFormContract.Presenter {
 
     private var isEnterSuccess = false
 
-    override fun onViewAttach(view: LoginFormContract.View, isRestored: Boolean) {
+    private var isRestored = false
+
+    override fun onViewAttach(view: LoginFormContract.View) {
         this.view = view
-        if (isRestored && isEnterSuccess) view.setEnterSuccess("Вход выполнен", true)
+        if (isRestored && isEnterSuccess) view.setEnterSuccess(
+            "Вход выполнен",
+            true
+        )
         else if (isRestored && !isEnterSuccess) view.setEnterError(
             "Неверный логин или пароль!",
             true
@@ -40,5 +45,9 @@ class LoginFormPresenter : LoginFormContract.Presenter {
 
     override fun onForgotPassword() {
         view?.showForgotPassword()
+    }
+
+    override fun onRestored(isRestored: Boolean) {
+        this.isRestored = isRestored
     }
 }

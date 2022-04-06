@@ -6,6 +6,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -13,9 +14,13 @@ import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
 import com.example.loginapp.databinding.ActivityLoginFormBinding
 
+const val IS_PRESENTER_RESTORED = "IS_PRESENTER_RESTORED"
+
 class LoginFormActivity : AppCompatActivity(), LoginFormContract.View {
     private lateinit var binding: ActivityLoginFormBinding
     private var presenter: LoginFormContract.Presenter? = null
+
+    private var isButtonClicked: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,14 +29,16 @@ class LoginFormActivity : AppCompatActivity(), LoginFormContract.View {
 
         presenter = restoreLoginFormPresenter()
 
-        if (savedInstanceState?.isEmpty == false) {
-            presenter?.onViewAttach(this, true)
-        } else {
-            presenter?.onViewAttach(this, false)
+        if (savedInstanceState?.getBoolean(IS_PRESENTER_RESTORED) == true) {
+            presenter?.onRestored(true)
         }
 
+        presenter?.onViewAttach(this)
+
+        Log.i("IS_RESTORED", savedInstanceState?.getBoolean(IS_PRESENTER_RESTORED).toString())
 
         binding.enterButton.setOnClickListener {
+            isButtonClicked = true
             presenter?.onEnter(
                 binding.usernameEditText.text.toString(),
                 binding.passwordEditText.text.toString()
@@ -120,5 +127,12 @@ class LoginFormActivity : AppCompatActivity(), LoginFormContract.View {
         val inputMethodManager =
             getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        if (isButtonClicked) {
+            outState.putBoolean(IS_PRESENTER_RESTORED, true)
+        }
+        super.onSaveInstanceState(outState)
     }
 }
