@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">LoginApp</string>
+    <string name="username_inside_text">Имя пользователя</string>
+    <string name="username_outside_text">Введите имя пользователя</string>
+    <string name="password_inside_text">Пароль пользователя</string>
+    <string name="password_outside_text">Введите пароль</string>
+    <string name="registration_button_text">Регистрация</string>
+    <string name="enter_button_text">Войти</string>
+    <string name="forgot_password_button_text">восстановить пароль</string>
+    <string name="registration_message">Нажата кнопка регистрации!</string>
+    <string name="forgot_password_message">Нажата кнопка восстановления пароля!</string>
 </resources>
