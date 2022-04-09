@@ -4,7 +4,7 @@ import androidx.annotation.MainThread
 
 
 interface LoginFormUsecase {
-    fun enter(
+    fun userLogin(
         username: String,
         password: String,
         @MainThread callback: (Boolean) -> Unit

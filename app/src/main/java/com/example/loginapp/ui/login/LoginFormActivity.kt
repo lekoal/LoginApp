@@ -17,7 +17,8 @@ import com.example.loginapp.databinding.ActivityLoginFormBinding
 
 const val IS_PRESENTER_RESTORED = "IS_PRESENTER_RESTORED"
 
-class LoginFormActivity : AppCompatActivity(), LoginFormContract.View {
+class LoginFormActivity : AppCompatActivity(),
+    LoginFormContract.View {
     private lateinit var binding: ActivityLoginFormBinding
     private var presenter: LoginFormContract.Presenter? = null
 
@@ -25,68 +26,100 @@ class LoginFormActivity : AppCompatActivity(), LoginFormContract.View {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityLoginFormBinding.inflate(layoutInflater)
+        binding =
+            ActivityLoginFormBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        presenter = restoreLoginFormPresenter()
+        presenter = onRotateRestoreLoginFormPresenter()
 
         if (savedInstanceState?.getBoolean(IS_PRESENTER_RESTORED) == true) {
-            presenter?.onRestored(true)
+            presenter?.onRotatePresenterRestored(true)
         }
 
         presenter?.onViewAttach(this)
 
         binding.enterButton.setOnClickListener {
             isButtonClicked = true
-            presenter?.onEnter(
+            presenter?.onUserLogin(
                 binding.usernameEditText.text.toString(),
                 binding.passwordEditText.text.toString()
             )
         }
         binding.registrationButton.setOnClickListener {
-            presenter?.onRegistration()
+            presenter?.onUserRegistration()
         }
         binding.forgotPasswordButton.setOnClickListener {
-            presenter?.onForgotPassword()
+            presenter?.onUserForgotPassword()
         }
     }
 
     @MainThread
-    override fun setEnterSuccess(enterSuccessText: String, isRestored: Boolean) {
-        binding.loadingProcessContainer.visibility = View.VISIBLE
-        binding.enterSuccessImage.visibility = View.VISIBLE
-        if (!isRestored) Toast.makeText(this, enterSuccessText, Toast.LENGTH_SHORT).show()
-        onScreenTouch()
+    override fun setUserLoginSuccess(
+        enterSuccessText: String,
+        isRestored: Boolean
+    ) {
+        binding.loadingProcessContainer.visibility =
+            View.VISIBLE
+        binding.enterSuccessImage.visibility =
+            View.VISIBLE
+        if (!isRestored) Toast.makeText(
+            this,
+            enterSuccessText,
+            Toast.LENGTH_SHORT
+        ).show()
+        onScreenUnblockWithTouch()
     }
 
     @MainThread
-    override fun setEnterError(enterErrorText: String, isRestored: Boolean) {
-        binding.loadingProcessContainer.visibility = View.VISIBLE
-        binding.enterErrorImage.visibility = View.VISIBLE
-        if (!isRestored) Toast.makeText(this, enterErrorText, Toast.LENGTH_SHORT).show()
-        onScreenTouch()
+    override fun setUserLoginError(
+        enterErrorText: String,
+        isRestored: Boolean
+    ) {
+        binding.loadingProcessContainer.visibility =
+            View.VISIBLE
+        binding.enterErrorImage.visibility =
+            View.VISIBLE
+        if (!isRestored) Toast.makeText(
+            this,
+            enterErrorText,
+            Toast.LENGTH_SHORT
+        ).show()
+        onScreenUnblockWithTouch()
     }
 
     @MainThread
-    override fun showProcessLoading(isLoading: Boolean) {
+    override fun showLoginProcessLoading(
+        isLoading: Boolean
+    ) {
         hideKeyboard()
         if (isLoading) {
-            viewElementsDisable(true)
-            binding.loadingProcessContainer.visibility = View.VISIBLE
-            binding.loadingProcess.visibility = View.VISIBLE
+            loginFormActivityViewsDisable(true)
+            binding.loadingProcessContainer.visibility =
+                View.VISIBLE
+            binding.loadingProcess.visibility =
+                View.VISIBLE
         } else {
-            binding.loadingProcess.visibility = View.GONE
+            binding.loadingProcess.visibility =
+                View.GONE
         }
     }
 
     @MainThread
-    override fun showRegistration() {
-        Toast.makeText(this, getString(R.string.registration_message), Toast.LENGTH_SHORT).show()
+    override fun showUserRegistrationForm() {
+        Toast.makeText(
+            this,
+            getString(R.string.registration_message),
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     @MainThread
-    override fun showForgotPassword() {
-        Toast.makeText(this, getString(R.string.forgot_password_message), Toast.LENGTH_SHORT).show()
+    override fun showUserForgotPasswordForm() {
+        Toast.makeText(
+            this,
+            getString(R.string.forgot_password_message),
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     override fun getHandler(): Handler {
@@ -94,24 +127,34 @@ class LoginFormActivity : AppCompatActivity(), LoginFormContract.View {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun onScreenTouch() {
+    private fun onScreenUnblockWithTouch() {
         binding.loadingProcessContainer.setOnTouchListener { _, _ ->
-            binding.enterSuccessImage.visibility = View.GONE
-            binding.enterErrorImage.visibility = View.GONE
-            binding.loadingProcessContainer.visibility = View.GONE
-            viewElementsDisable(false)
+            binding.enterSuccessImage.visibility =
+                View.GONE
+            binding.enterErrorImage.visibility =
+                View.GONE
+            binding.loadingProcessContainer.visibility =
+                View.GONE
+            loginFormActivityViewsDisable(false)
             true
         }
     }
 
-    private fun viewElementsDisable(isDisable: Boolean) {
-        binding.activityLoginFormContainer.isEnabled = !isDisable
+    private fun loginFormActivityViewsDisable(
+        isDisable: Boolean
+    ) {
+        binding.activityLoginFormContainer.isEnabled =
+            !isDisable
     }
 
-    private fun restoreLoginFormPresenter(): LoginFormPresenter {
-        val currentPresenter = lastCustomNonConfigurationInstance as? LoginFormPresenter
+    private fun onRotateRestoreLoginFormPresenter(): LoginFormPresenter {
+        val currentPresenter =
+            lastCustomNonConfigurationInstance
+                    as? LoginFormPresenter
 
-        return currentPresenter ?: LoginFormPresenter(app.loginFormUsecase)
+        return currentPresenter ?: LoginFormPresenter(
+            app.loginFormUsecase
+        )
     }
 
     @Deprecated("Deprecated in Java")
@@ -120,18 +163,31 @@ class LoginFormActivity : AppCompatActivity(), LoginFormContract.View {
     }
 
     private fun Activity.hideKeyboard() {
-        hideKeyboard(currentFocus ?: View(this))
+        hideKeyboard(
+            currentFocus ?: View(this)
+        )
     }
 
-    private fun Context.hideKeyboard(view: View) {
+    private fun Context.hideKeyboard(
+        view: View
+    ) {
         val inputMethodManager =
-            getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+            getSystemService(Activity.INPUT_METHOD_SERVICE)
+                    as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(
+            view.windowToken,
+            0
+        )
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
+    override fun onSaveInstanceState(
+        outState: Bundle
+    ) {
         if (isButtonClicked) {
-            outState.putBoolean(IS_PRESENTER_RESTORED, true)
+            outState.putBoolean(
+                IS_PRESENTER_RESTORED,
+                true
+            )
         }
         super.onSaveInstanceState(outState)
     }

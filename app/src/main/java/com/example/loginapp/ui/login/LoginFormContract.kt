@@ -3,23 +3,31 @@ package com.example.loginapp.ui.login
 import android.os.Handler
 import androidx.annotation.MainThread
 
-class LoginFormContract {
+interface LoginFormContract {
 
     interface View {
         @MainThread
-        fun setEnterSuccess(enterSuccessText: String, isRestored: Boolean = false)
+        fun setUserLoginSuccess(
+            enterSuccessText: String,
+            isRestored: Boolean = false
+        )
 
         @MainThread
-        fun setEnterError(enterErrorText: String, isRestored: Boolean = false)
+        fun setUserLoginError(
+            enterErrorText: String,
+            isRestored: Boolean = false
+        )
 
         @MainThread
-        fun showProcessLoading(isLoading: Boolean)
+        fun showLoginProcessLoading(
+            isLoading: Boolean
+        )
 
         @MainThread
-        fun showRegistration()
+        fun showUserRegistrationForm()
 
         @MainThread
-        fun showForgotPassword()
+        fun showUserForgotPasswordForm()
 
         @MainThread
         fun getHandler(): Handler
@@ -27,18 +35,25 @@ class LoginFormContract {
 
     interface Presenter {
         @MainThread
-        fun onViewAttach(view: View)
+        fun onViewAttach(
+            view: View
+        )
 
         @MainThread
-        fun onEnter(username: String, password: String)
+        fun onUserLogin(
+            username: String,
+            password: String
+        )
 
         @MainThread
-        fun onRegistration()
+        fun onUserRegistration()
 
         @MainThread
-        fun onForgotPassword()
+        fun onUserForgotPassword()
 
         @MainThread
-        fun onRestored(isRestored: Boolean)
+        fun onRotatePresenterRestored(
+            isRestored: Boolean
+        )
     }
 }
