@@ -3,7 +3,7 @@ package com.example.loginapp.data
 import com.example.loginapp.domain.UserProfileRepo
 import com.example.loginapp.domain.entities.UserProfileData
 
-class UserProfileRepoImpl : UserProfileRepo {
+object UserProfileRepoImpl : UserProfileRepo {
 
     private val admin: UserProfileData =
         UserProfileData(

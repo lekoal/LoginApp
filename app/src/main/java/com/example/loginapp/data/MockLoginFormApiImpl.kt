@@ -9,7 +9,14 @@ class MockLoginFormApiImpl : LoginFormApi {
         password: String
     ): Boolean {
         Thread.sleep(2000)
-        return username == "admin" && password == "admin"
+        if (
+            UserProfileRepoImpl.getUser(username) != null
+            &&
+            UserProfileRepoImpl.getUser(username)?.userPassword == password
+        ) {
+            return true
+        }
+        return false
     }
 
     override fun userRegistration(
