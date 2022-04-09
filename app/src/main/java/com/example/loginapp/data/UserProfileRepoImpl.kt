@@ -18,7 +18,7 @@ class UserProfileRepoImpl : UserProfileRepo {
             userId = "1",
             username = "test",
             userPassword = "test",
-            userEmail = "admin@email.com"
+            userEmail = "test@email.com"
         )
 
     private val userList: MutableList<UserProfileData> =
