@@ -3,7 +3,7 @@ package com.example.loginapp.ui.login
 import android.os.Handler
 import androidx.annotation.MainThread
 
-class LoginFormContract {
+interface LoginFormContract {
 
     interface View {
         @MainThread

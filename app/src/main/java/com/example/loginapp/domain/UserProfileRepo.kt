@@ -9,7 +9,7 @@ interface UserProfileRepo {
 
     fun getUser(
         username: String
-    ): UserProfileData
+    ): UserProfileData?
 
     fun getAllUsers(): List<UserProfileData>
 
