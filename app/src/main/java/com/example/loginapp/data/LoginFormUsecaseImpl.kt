@@ -10,13 +10,13 @@ class LoginFormUsecaseImpl(
     private val api: LoginFormApi,
     private val handler: Handler
 ) : LoginFormUsecase {
-    override fun enter(
+    override fun userLogin(
         username: String,
         password: String,
         @MainThread callback: (Boolean) -> Unit
     ) {
         Thread {
-            val result = api.enter(username, password)
+            val result = api.userLogin(username, password)
             handler.post {
                 callback(result)
             }

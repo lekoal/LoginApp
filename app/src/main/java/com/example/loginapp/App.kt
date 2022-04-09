@@ -10,11 +10,17 @@ import com.example.loginapp.domain.LoginFormApi
 import com.example.loginapp.domain.LoginFormUsecase
 
 class App : Application() {
-    private val loginFormApi: LoginFormApi by lazy { MockLoginFormApiImpl() }
-    val loginFormUsecase: LoginFormUsecase by lazy {
+    private val loginFormApi:
+            LoginFormApi by lazy {
+        MockLoginFormApiImpl()
+    }
+    val loginFormUsecase:
+            LoginFormUsecase by lazy {
         LoginFormUsecaseImpl(
             app.loginFormApi,
-            Handler(Looper.getMainLooper())
+            Handler(
+                Looper.getMainLooper()
+            )
         )
     }
 }

@@ -4,11 +4,15 @@ import com.example.loginapp.domain.UserProfileRepo
 import com.example.loginapp.domain.entities.UserProfileData
 
 class UserProfileRepoImpl : UserProfileRepo {
-    override fun addNewUser(userProfile: UserProfileData) {
+    override fun addNewUser(
+        userProfile: UserProfileData
+    ) {
         TODO("Not yet implemented")
     }
 
-    override fun getUser(username: String): UserProfileData {
+    override fun getUser(
+        username: String
+    ): UserProfileData {
         TODO("Not yet implemented")
     }
 
@@ -16,11 +20,16 @@ class UserProfileRepoImpl : UserProfileRepo {
         TODO("Not yet implemented")
     }
 
-    override fun editUser(username: String, userProfile: UserProfileData) {
+    override fun editUser(
+        username: String,
+        userProfile: UserProfileData
+    ) {
         TODO("Not yet implemented")
     }
 
-    override fun deleteUser(username: String) {
+    override fun deleteUser(
+        username: String
+    ) {
         TODO("Not yet implemented")
     }
 
