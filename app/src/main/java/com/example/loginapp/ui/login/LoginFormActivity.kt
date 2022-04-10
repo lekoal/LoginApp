@@ -20,8 +20,6 @@ class LoginFormActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginFormBinding
     private var viewModel: LoginFormContract.ViewModel? = null
 
-    private var isLoginSuccess = false
-
     private var isScreenRotate = false
 
     private val handler: Handler by lazy { Handler(Looper.getMainLooper()) }
@@ -35,7 +33,9 @@ class LoginFormActivity : AppCompatActivity() {
 
         if (savedInstanceState?.getBoolean(IS_SCREEN_ROTATED) == true) {
             isScreenRotate = true
-            isLoginSuccess(isLoginSuccess)
+            viewModel?.isUserLoginSuccess?.subscribe(handler) {
+                isLoginSuccess(it)
+            }
         }
 
         binding.enterButton.setOnClickListener {
@@ -77,7 +77,6 @@ class LoginFormActivity : AppCompatActivity() {
     private fun isLoginSuccess(
         isLoginSuccess: Boolean?
     ) {
-        this.isLoginSuccess = isLoginSuccess == true
         binding.loadingProcessContainer.visibility =
             View.VISIBLE
         if (isLoginSuccess == true) {
