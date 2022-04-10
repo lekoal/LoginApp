@@ -12,7 +12,7 @@ class LoginFormViewModel(
     override val isUserLoginSuccess: LoginPublisher<Boolean> =
         LoginPublisher()
     override val loginErrorSuccessMessage: LoginPublisher<String> =
-        LoginPublisher()
+        LoginPublisher(true)
     override val onUserRegistration: LoginPublisher<String> =
         LoginPublisher()
     override val onUserForgotPassword: LoginPublisher<String> =

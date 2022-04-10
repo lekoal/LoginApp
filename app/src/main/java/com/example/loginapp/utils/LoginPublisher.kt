@@ -13,7 +13,7 @@ class Subscriber<T>(
     }
 }
 
-class LoginPublisher<T> {
+class LoginPublisher<T>(private val isSingle: Boolean = false) {
 
     private val subscribers: MutableSet<Subscriber<T?>> = mutableSetOf()
     private var lastValue: T? = null
@@ -47,8 +47,10 @@ class LoginPublisher<T> {
     fun post(
         value: T
     ) {
-        hasFirstValue = true
-        this.lastValue = value
+        if (!isSingle) {
+            hasFirstValue = true
+            this.lastValue = value
+        }
         subscribers.forEach {
             it.invoke(value)
         }
