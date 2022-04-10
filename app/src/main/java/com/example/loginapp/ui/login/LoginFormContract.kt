@@ -1,43 +1,17 @@
 package com.example.loginapp.ui.login
 
-import android.os.Handler
 import androidx.annotation.MainThread
+import com.example.loginapp.utils.LoginPublisher
 
 interface LoginFormContract {
 
-    interface View {
-        @MainThread
-        fun setUserLoginSuccess(
-            enterSuccessText: String,
-            isRestored: Boolean = false
-        )
+    interface ViewModel {
 
-        @MainThread
-        fun setUserLoginError(
-            enterErrorText: String,
-            isRestored: Boolean = false
-        )
-
-        @MainThread
-        fun showLoginProcessLoading(
-            isLoading: Boolean
-        )
-
-        @MainThread
-        fun showUserRegistrationForm()
-
-        @MainThread
-        fun showUserForgotPasswordForm()
-
-        @MainThread
-        fun getHandler(): Handler
-    }
-
-    interface Presenter {
-        @MainThread
-        fun onViewAttach(
-            view: View
-        )
+        val showLoginProcessLoading: LoginPublisher<Boolean>
+        val isUserLoginSuccess: LoginPublisher<Boolean>
+        val loginErrorSuccessMessage: LoginPublisher<String>
+        val onUserRegistration: LoginPublisher<String>
+        val onUserForgotPassword: LoginPublisher<String>
 
         @MainThread
         fun onUserLogin(
@@ -50,10 +24,5 @@ interface LoginFormContract {
 
         @MainThread
         fun onUserForgotPassword()
-
-        @MainThread
-        fun onRotatePresenterRestored(
-            isRestored: Boolean
-        )
     }
 }

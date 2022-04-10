@@ -2,8 +2,6 @@ package com.example.loginapp
 
 import android.app.Application
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import com.example.loginapp.data.LoginFormUsecaseImpl
 import com.example.loginapp.data.MockLoginFormApiImpl
 import com.example.loginapp.domain.LoginFormApi
@@ -17,10 +15,7 @@ class App : Application() {
     val loginFormUsecase:
             LoginFormUsecase by lazy {
         LoginFormUsecaseImpl(
-            app.loginFormApi,
-            Handler(
-                Looper.getMainLooper()
-            )
+            app.loginFormApi
         )
     }
 }

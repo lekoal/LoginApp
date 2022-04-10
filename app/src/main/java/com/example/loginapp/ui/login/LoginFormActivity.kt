@@ -11,88 +11,104 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
-import com.example.loginapp.R
 import com.example.loginapp.app
 import com.example.loginapp.databinding.ActivityLoginFormBinding
 
-const val IS_PRESENTER_RESTORED = "IS_PRESENTER_RESTORED"
+const val IS_SCREEN_ROTATED = "IS_SCREEN_ROTATED"
 
-class LoginFormActivity : AppCompatActivity(),
-    LoginFormContract.View {
+class LoginFormActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginFormBinding
-    private var presenter: LoginFormContract.Presenter? = null
+    private var viewModel: LoginFormContract.ViewModel? = null
 
-    private var isButtonClicked: Boolean = false
+    private var isScreenRotate = false
+
+    private val handler: Handler by lazy { Handler(Looper.getMainLooper()) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding =
-            ActivityLoginFormBinding.inflate(layoutInflater)
+        binding = ActivityLoginFormBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        presenter = onRotateRestoreLoginFormPresenter()
+        viewModel = onRotateRestoreLoginFormViewModel()
 
-        if (savedInstanceState?.getBoolean(IS_PRESENTER_RESTORED) == true) {
-            presenter?.onRotatePresenterRestored(true)
+        if (savedInstanceState?.getBoolean(IS_SCREEN_ROTATED) == true) {
+            isScreenRotate = true
+            viewModel?.isUserLoginSuccess?.subscribe(handler) {
+                isLoginSuccess(it)
+            }
         }
 
-        presenter?.onViewAttach(this)
-
         binding.enterButton.setOnClickListener {
-            isButtonClicked = true
-            presenter?.onUserLogin(
+            isScreenRotate = true
+            viewModel?.onUserLogin(
                 binding.usernameEditText.text.toString(),
                 binding.passwordEditText.text.toString()
             )
         }
+
         binding.registrationButton.setOnClickListener {
-            presenter?.onUserRegistration()
+            viewModel?.onUserRegistration()
+            viewModel?.onUserRegistration?.subscribe(handler) {
+                showUserRegistrationForm(it)
+            }
         }
+
         binding.forgotPasswordButton.setOnClickListener {
-            presenter?.onUserForgotPassword()
+            viewModel?.onUserForgotPassword()
+            viewModel?.onUserForgotPassword?.subscribe(handler) {
+                showUserForgotPasswordForm(it)
+            }
+        }
+
+        viewModel?.showLoginProcessLoading?.subscribe(handler) {
+            showLoginProcessLoading(it)
+        }
+
+        viewModel?.isUserLoginSuccess?.subscribe(handler) {
+            isLoginSuccess(it)
+        }
+
+        viewModel?.loginErrorSuccessMessage?.subscribe(handler) {
+            loginErrorSuccessMessage(it)
         }
     }
 
     @MainThread
-    override fun setUserLoginSuccess(
-        enterSuccessText: String,
-        isRestored: Boolean
+    private fun isLoginSuccess(
+        isLoginSuccess: Boolean?
     ) {
         binding.loadingProcessContainer.visibility =
             View.VISIBLE
-        binding.enterSuccessImage.visibility =
-            View.VISIBLE
-        if (!isRestored) Toast.makeText(
-            this,
-            enterSuccessText,
-            Toast.LENGTH_SHORT
-        ).show()
-        onScreenUnblockWithTouch()
+        if (isLoginSuccess == true) {
+            binding.enterSuccessImage.visibility =
+                View.VISIBLE
+            binding.enterErrorImage.visibility =
+                View.GONE
+        } else {
+            binding.enterErrorImage.visibility =
+                View.VISIBLE
+            binding.enterSuccessImage.visibility =
+                View.GONE
+        }
+        screenBlockUnblockWithTouch()
     }
 
     @MainThread
-    override fun setUserLoginError(
-        enterErrorText: String,
-        isRestored: Boolean
+    private fun loginErrorSuccessMessage(
+        loginSuccessErrorMessage: String?
     ) {
-        binding.loadingProcessContainer.visibility =
-            View.VISIBLE
-        binding.enterErrorImage.visibility =
-            View.VISIBLE
-        if (!isRestored) Toast.makeText(
-            this,
-            enterErrorText,
-            Toast.LENGTH_SHORT
-        ).show()
-        onScreenUnblockWithTouch()
+        loginSuccessErrorMessage?.let {
+            Toast.makeText(
+                this,
+                it,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
-    @MainThread
-    override fun showLoginProcessLoading(
-        isLoading: Boolean
-    ) {
+    private fun showLoginProcessLoading(shouldShow: Boolean?) {
         hideKeyboard()
-        if (isLoading) {
+        if (shouldShow == true) {
             loginFormActivityViewsDisable(true)
             binding.loadingProcessContainer.visibility =
                 View.VISIBLE
@@ -105,29 +121,25 @@ class LoginFormActivity : AppCompatActivity(),
     }
 
     @MainThread
-    override fun showUserRegistrationForm() {
+    private fun showUserRegistrationForm(registrationMessage: String?) {
         Toast.makeText(
             this,
-            getString(R.string.registration_message),
+            registrationMessage,
             Toast.LENGTH_SHORT
         ).show()
     }
 
     @MainThread
-    override fun showUserForgotPasswordForm() {
+    private fun showUserForgotPasswordForm(forgotPasswordMessage: String?) {
         Toast.makeText(
             this,
-            getString(R.string.forgot_password_message),
+            forgotPasswordMessage,
             Toast.LENGTH_SHORT
         ).show()
     }
 
-    override fun getHandler(): Handler {
-        return Handler(Looper.getMainLooper())
-    }
-
     @SuppressLint("ClickableViewAccessibility")
-    private fun onScreenUnblockWithTouch() {
+    private fun screenBlockUnblockWithTouch() {
         binding.loadingProcessContainer.setOnTouchListener { _, _ ->
             binding.enterSuccessImage.visibility =
                 View.GONE
@@ -147,19 +159,19 @@ class LoginFormActivity : AppCompatActivity(),
             !isDisable
     }
 
-    private fun onRotateRestoreLoginFormPresenter(): LoginFormPresenter {
-        val currentPresenter =
+    private fun onRotateRestoreLoginFormViewModel(): LoginFormViewModel {
+        val currentViewModel =
             lastCustomNonConfigurationInstance
-                    as? LoginFormPresenter
+                    as? LoginFormViewModel
 
-        return currentPresenter ?: LoginFormPresenter(
+        return currentViewModel ?: LoginFormViewModel(
             app.loginFormUsecase
         )
     }
 
     @Deprecated("Deprecated in Java")
     override fun onRetainCustomNonConfigurationInstance(): Any? {
-        return presenter
+        return viewModel
     }
 
     private fun Activity.hideKeyboard() {
@@ -180,15 +192,34 @@ class LoginFormActivity : AppCompatActivity(),
         )
     }
 
-    override fun onSaveInstanceState(
-        outState: Bundle
-    ) {
-        if (isButtonClicked) {
-            outState.putBoolean(
-                IS_PRESENTER_RESTORED,
-                true
-            )
+    override fun onSaveInstanceState(outState: Bundle) {
+        if (isScreenRotate) {
+            outState.putBoolean(IS_SCREEN_ROTATED, true)
         }
         super.onSaveInstanceState(outState)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        viewModel?.onUserRegistration?.unsubscribe(handler) {
+            showUserRegistrationForm(it)
+        }
+
+        viewModel?.onUserForgotPassword?.unsubscribe(handler) {
+            showUserForgotPasswordForm(it)
+        }
+
+        viewModel?.showLoginProcessLoading?.unsubscribe(handler) {
+            showLoginProcessLoading(it)
+        }
+
+        viewModel?.isUserLoginSuccess?.unsubscribe(handler) {
+            isLoginSuccess(it)
+        }
+
+        viewModel?.loginErrorSuccessMessage?.unsubscribe(handler) {
+            loginErrorSuccessMessage(it)
+        }
     }
 }
