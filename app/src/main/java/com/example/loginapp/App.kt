@@ -17,10 +17,7 @@ class App : Application() {
     val loginFormUsecase:
             LoginFormUsecase by lazy {
         LoginFormUsecaseImpl(
-            app.loginFormApi,
-            Handler(
-                Looper.getMainLooper()
-            )
+            app.loginFormApi
         )
     }
 }

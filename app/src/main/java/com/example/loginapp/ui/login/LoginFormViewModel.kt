@@ -1,74 +1,50 @@
 package com.example.loginapp.ui.login
 
 import com.example.loginapp.domain.LoginFormUsecase
+import com.example.loginapp.utils.LoginPublisher
 
 class LoginFormViewModel(
     private val loginFormUsecase: LoginFormUsecase
 ) :
     LoginFormContract.ViewModel {
-
-    private var view: LoginFormContract.View? = null
-
-    private var isEnterSuccess = false
-
-    private var isRestored = false
-
-    override fun onViewAttach(
-        view: LoginFormContract.View
-    ) {
-        this.view = view
-        if (isRestored && isEnterSuccess)
-            view.setUserLoginSuccess(
-                "Вход выполнен",
-                true
-            )
-        else if (isRestored && !isEnterSuccess)
-            view.setUserLoginError(
-                "Неверный логин или пароль!",
-                true
-            )
-    }
+    override val showLoginProcessLoading: LoginPublisher<Boolean> =
+        LoginPublisher()
+    override val isUserLoginSuccess: LoginPublisher<Boolean> =
+        LoginPublisher()
+    override val loginErrorSuccessMessage: LoginPublisher<String> =
+        LoginPublisher()
+    override val onUserRegistration: LoginPublisher<String> =
+        LoginPublisher()
+    override val onUserForgotPassword: LoginPublisher<String> =
+        LoginPublisher()
 
     override fun onUserLogin(
         username: String,
         password: String
     ) {
-        view?.showLoginProcessLoading(
-            true
-        )
+        showLoginProcessLoading.post(true)
 
         loginFormUsecase.userLogin(
             username,
             password
         ) { result ->
-            view?.showLoginProcessLoading(
-                false
-            )
+            showLoginProcessLoading.post(false)
             if (result) {
-                isEnterSuccess = true
-                view?.setUserLoginSuccess(
-                    "Вход выполнен"
-                )
+                isUserLoginSuccess.post(true)
+                loginErrorSuccessMessage.post("Вход выполнен")
             } else {
-                isEnterSuccess = false
-                view?.setUserLoginError(
-                    "Неверный логин или пароль!"
-                )
+                isUserLoginSuccess.post(false)
+                loginErrorSuccessMessage.post("Неверный логин или пароль!")
             }
         }
     }
 
     override fun onUserRegistration() {
-        view?.showUserRegistrationForm()
+        onUserRegistration.post("Нажата кнопка регистрации!")
     }
 
     override fun onUserForgotPassword() {
-        view?.showUserForgotPasswordForm()
+        onUserForgotPassword.post("Нажата кнопка восстановления пароля!")
     }
 
-    override fun onRotatePresenterRestored(
-        isRestored: Boolean
-    ) {
-        this.isRestored = isRestored
-    }
 }

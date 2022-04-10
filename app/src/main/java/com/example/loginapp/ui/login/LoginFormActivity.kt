@@ -11,88 +11,94 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
-import com.example.loginapp.R
 import com.example.loginapp.app
 import com.example.loginapp.databinding.ActivityLoginFormBinding
+import com.example.loginapp.utils.LoginPublisher
 
 const val IS_PRESENTER_RESTORED = "IS_PRESENTER_RESTORED"
 
-class LoginFormActivity : AppCompatActivity(),
-    LoginFormContract.View {
+class LoginFormActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginFormBinding
     private var viewModel: LoginFormContract.ViewModel? = null
 
-    private var isButtonClicked: Boolean = false
+    private var isLoginButtonClicked: Boolean = false
+
+    private var isScreenRotated = false
+
+    private val handler: Handler by lazy { Handler(Looper.getMainLooper()) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding =
-            ActivityLoginFormBinding.inflate(layoutInflater)
+        binding = ActivityLoginFormBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel = onRotateRestoreLoginFormPresenter()
-
         if (savedInstanceState?.getBoolean(IS_PRESENTER_RESTORED) == true) {
-            viewModel?.onRotatePresenterRestored(true)
+            isScreenRotated = true
         }
 
-        viewModel?.onViewAttach(this)
+        viewModel = onRotateRestoreLoginFormViewModel()
 
         binding.enterButton.setOnClickListener {
-            isButtonClicked = true
+            isLoginButtonClicked = true
             viewModel?.onUserLogin(
                 binding.usernameEditText.text.toString(),
                 binding.passwordEditText.text.toString()
             )
         }
+
         binding.registrationButton.setOnClickListener {
             viewModel?.onUserRegistration()
+            viewModel?.onUserRegistration?.subscribe(handler) {
+                showUserRegistrationForm(it)
+            }
         }
+
         binding.forgotPasswordButton.setOnClickListener {
             viewModel?.onUserForgotPassword()
+            viewModel?.onUserForgotPassword?.subscribe(handler) {
+                showUserForgotPasswordForm(it)
+            }
+        }
+
+        viewModel?.showLoginProcessLoading?.subscribe(handler) {
+            showLoginProcessLoading(it)
+        }
+
+        viewModel?.isUserLoginSuccess?.subscribe(handler) { isLoginSuccess ->
+            viewModel?.loginErrorSuccessMessage?.subscribe(handler) {
+                loginErrorSuccessMessage(it, isLoginSuccess)
+            }
         }
     }
 
-    @MainThread
-    override fun setUserLoginSuccess(
-        enterSuccessText: String,
-        isRestored: Boolean
+    private fun loginErrorSuccessMessage(
+        loginSuccessErrorMessage: String?,
+        isLoginSuccess: Boolean?
     ) {
-        binding.loadingProcessContainer.visibility =
-            View.VISIBLE
-        binding.enterSuccessImage.visibility =
-            View.VISIBLE
-        if (!isRestored) Toast.makeText(
-            this,
-            enterSuccessText,
-            Toast.LENGTH_SHORT
-        ).show()
-        onScreenUnblockWithTouch()
+        if (isLoginSuccess == true) {
+            loginSuccessErrorMessage?.let {
+                setUserLoginSuccess(
+                    it,
+                    isScreenRotated
+                )
+            }
+        } else {
+            loginSuccessErrorMessage?.let {
+                setUserLoginError(
+                    it,
+                    isScreenRotated
+                )
+            }
+        }
     }
 
-    @MainThread
-    override fun setUserLoginError(
-        enterErrorText: String,
-        isRestored: Boolean
-    ) {
-        binding.loadingProcessContainer.visibility =
-            View.VISIBLE
-        binding.enterErrorImage.visibility =
-            View.VISIBLE
-        if (!isRestored) Toast.makeText(
-            this,
-            enterErrorText,
-            Toast.LENGTH_SHORT
-        ).show()
-        onScreenUnblockWithTouch()
-    }
-
-    @MainThread
-    override fun showLoginProcessLoading(
-        isLoading: Boolean
-    ) {
+    private fun showLoginProcessLoading(shouldShow: Boolean?) {
         hideKeyboard()
-        if (isLoading) {
+        binding.enterSuccessImage.visibility =
+            View.GONE
+        binding.enterErrorImage.visibility =
+            View.GONE
+        if (shouldShow == true) {
             loginFormActivityViewsDisable(true)
             binding.loadingProcessContainer.visibility =
                 View.VISIBLE
@@ -105,29 +111,63 @@ class LoginFormActivity : AppCompatActivity(),
     }
 
     @MainThread
-    override fun showUserRegistrationForm() {
+    private fun setUserLoginSuccess(
+        enterSuccessText: String,
+        isRestored: Boolean
+    ) {
+        binding.loadingProcessContainer.visibility =
+            View.VISIBLE
+        binding.enterErrorImage.visibility =
+            View.GONE
+        binding.enterSuccessImage.visibility =
+            View.VISIBLE
+        if (!isRestored) Toast.makeText(
+            this,
+            enterSuccessText,
+            Toast.LENGTH_SHORT
+        ).show()
+        screenBlockUnblockWithTouch()
+    }
+
+    @MainThread
+    private fun setUserLoginError(
+        enterErrorText: String,
+        isRestored: Boolean
+    ) {
+        binding.loadingProcessContainer.visibility =
+            View.VISIBLE
+        binding.enterSuccessImage.visibility =
+            View.GONE
+        binding.enterErrorImage.visibility =
+            View.VISIBLE
+        if (!isRestored) Toast.makeText(
+            this,
+            enterErrorText,
+            Toast.LENGTH_SHORT
+        ).show()
+        screenBlockUnblockWithTouch()
+    }
+
+    @MainThread
+    private fun showUserRegistrationForm(registrationMessage: String?) {
         Toast.makeText(
             this,
-            getString(R.string.registration_message),
+            registrationMessage,
             Toast.LENGTH_SHORT
         ).show()
     }
 
     @MainThread
-    override fun showUserForgotPasswordForm() {
+    private fun showUserForgotPasswordForm(forgotPasswordMessage: String?) {
         Toast.makeText(
             this,
-            getString(R.string.forgot_password_message),
+            forgotPasswordMessage,
             Toast.LENGTH_SHORT
         ).show()
     }
 
-    override fun getHandler(): Handler {
-        return Handler(Looper.getMainLooper())
-    }
-
     @SuppressLint("ClickableViewAccessibility")
-    private fun onScreenUnblockWithTouch() {
+    private fun screenBlockUnblockWithTouch() {
         binding.loadingProcessContainer.setOnTouchListener { _, _ ->
             binding.enterSuccessImage.visibility =
                 View.GONE
@@ -135,8 +175,10 @@ class LoginFormActivity : AppCompatActivity(),
                 View.GONE
             binding.loadingProcessContainer.visibility =
                 View.GONE
+            isLoginButtonClicked = false
+            isScreenRotated = false
             loginFormActivityViewsDisable(false)
-            true
+            false
         }
     }
 
@@ -147,12 +189,12 @@ class LoginFormActivity : AppCompatActivity(),
             !isDisable
     }
 
-    private fun onRotateRestoreLoginFormPresenter(): LoginFormViewModel {
-        val currentPresenter =
+    private fun onRotateRestoreLoginFormViewModel(): LoginFormViewModel {
+        val currentViewModel =
             lastCustomNonConfigurationInstance
                     as? LoginFormViewModel
 
-        return currentPresenter ?: LoginFormViewModel(
+        return currentViewModel ?: LoginFormViewModel(
             app.loginFormUsecase
         )
     }
@@ -183,12 +225,31 @@ class LoginFormActivity : AppCompatActivity(),
     override fun onSaveInstanceState(
         outState: Bundle
     ) {
-        if (isButtonClicked) {
-            outState.putBoolean(
-                IS_PRESENTER_RESTORED,
-                true
-            )
+        if (isLoginButtonClicked || isScreenRotated) {
+            outState.putBoolean(IS_PRESENTER_RESTORED, true)
         }
         super.onSaveInstanceState(outState)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        viewModel?.onUserRegistration?.unsubscribe(handler) {
+            showUserRegistrationForm(it)
+        }
+
+        viewModel?.onUserForgotPassword?.unsubscribe(handler) {
+            showUserForgotPasswordForm(it)
+        }
+
+        viewModel?.showLoginProcessLoading?.unsubscribe(handler) {
+            showLoginProcessLoading(it)
+        }
+
+        viewModel?.isUserLoginSuccess?.unsubscribe(handler) { isLoginSuccess ->
+            viewModel?.loginErrorSuccessMessage?.unsubscribe(handler) {
+                loginErrorSuccessMessage(it, isLoginSuccess)
+            }
+        }
     }
 }

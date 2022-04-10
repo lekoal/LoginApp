@@ -1,24 +1,42 @@
 package com.example.loginapp.utils
 
-private typealias Subscriber<T> = (T) -> Unit
+import android.os.Handler
+
+class Subscriber<T>(
+    private val handler: Handler,
+    private val callback: (T?) -> Unit
+) {
+    fun invoke(value: T?) {
+        handler.post {
+            callback.invoke(value)
+        }
+    }
+}
 
 class LoginPublisher<T> {
 
-    private val subscribers: MutableSet<Subscriber<T>> = mutableSetOf()
+    private val subscribers: MutableSet<Subscriber<T?>> = mutableSetOf()
     private var lastValue: T? = null
+    private var hasFirstValue = false
 
     fun subscribe(
-        subscriber: Subscriber<T>
+        handler: Handler,
+        callback: (T?) -> Unit
     ) {
+        val subscriber = Subscriber(handler, callback)
         subscribers.add(subscriber)
-        lastValue?.let {
-            subscriber.invoke(it)
+        if (hasFirstValue) {
+            handler.post {
+                subscriber.invoke(lastValue)
+            }
         }
     }
 
     fun unsubscribe(
-        subscriber: Subscriber<T>
+        handler: Handler,
+        callback: (T?) -> Unit
     ) {
+        val subscriber = Subscriber(handler, callback)
         subscribers.remove(subscriber)
     }
 
@@ -29,7 +47,10 @@ class LoginPublisher<T> {
     fun post(
         value: T
     ) {
+        hasFirstValue = true
         this.lastValue = value
-        subscribers.forEach { it.invoke(value) }
+        subscribers.forEach {
+            it.invoke(value)
+        }
     }
 }
