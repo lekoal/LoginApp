@@ -2,10 +2,10 @@ package com.example.loginapp.ui.login
 
 import com.example.loginapp.domain.LoginFormUsecase
 
-class LoginFormPresenter(
+class LoginFormViewModel(
     private val loginFormUsecase: LoginFormUsecase
 ) :
-    LoginFormContract.Presenter {
+    LoginFormContract.ViewModel {
 
     private var view: LoginFormContract.View? = null
 

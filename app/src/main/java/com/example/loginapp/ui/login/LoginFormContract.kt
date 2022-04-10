@@ -1,20 +1,18 @@
 package com.example.loginapp.ui.login
 
-import android.os.Handler
 import androidx.annotation.MainThread
 
 interface LoginFormContract {
 
-    interface View {
-        @MainThread
-        fun setUserLoginSuccess(
-            enterSuccessText: String,
-            isRestored: Boolean = false
-        )
+//        @MainThread
+//        fun getHandler(): Handler
+
+    interface ViewModel {
 
         @MainThread
-        fun setUserLoginError(
-            enterErrorText: String,
+        fun setUserLoginErrorSuccess(
+            errorSuccessMessageText: String,
+            isSuccess: Boolean,
             isRestored: Boolean = false
         )
 
@@ -28,16 +26,6 @@ interface LoginFormContract {
 
         @MainThread
         fun showUserForgotPasswordForm()
-
-        @MainThread
-        fun getHandler(): Handler
-    }
-
-    interface Presenter {
-        @MainThread
-        fun onViewAttach(
-            view: View
-        )
 
         @MainThread
         fun onUserLogin(

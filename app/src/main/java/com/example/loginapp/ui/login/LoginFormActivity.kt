@@ -20,7 +20,7 @@ const val IS_PRESENTER_RESTORED = "IS_PRESENTER_RESTORED"
 class LoginFormActivity : AppCompatActivity(),
     LoginFormContract.View {
     private lateinit var binding: ActivityLoginFormBinding
-    private var presenter: LoginFormContract.Presenter? = null
+    private var viewModel: LoginFormContract.ViewModel? = null
 
     private var isButtonClicked: Boolean = false
 
@@ -30,26 +30,26 @@ class LoginFormActivity : AppCompatActivity(),
             ActivityLoginFormBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        presenter = onRotateRestoreLoginFormPresenter()
+        viewModel = onRotateRestoreLoginFormPresenter()
 
         if (savedInstanceState?.getBoolean(IS_PRESENTER_RESTORED) == true) {
-            presenter?.onRotatePresenterRestored(true)
+            viewModel?.onRotatePresenterRestored(true)
         }
 
-        presenter?.onViewAttach(this)
+        viewModel?.onViewAttach(this)
 
         binding.enterButton.setOnClickListener {
             isButtonClicked = true
-            presenter?.onUserLogin(
+            viewModel?.onUserLogin(
                 binding.usernameEditText.text.toString(),
                 binding.passwordEditText.text.toString()
             )
         }
         binding.registrationButton.setOnClickListener {
-            presenter?.onUserRegistration()
+            viewModel?.onUserRegistration()
         }
         binding.forgotPasswordButton.setOnClickListener {
-            presenter?.onUserForgotPassword()
+            viewModel?.onUserForgotPassword()
         }
     }
 
@@ -147,19 +147,19 @@ class LoginFormActivity : AppCompatActivity(),
             !isDisable
     }
 
-    private fun onRotateRestoreLoginFormPresenter(): LoginFormPresenter {
+    private fun onRotateRestoreLoginFormPresenter(): LoginFormViewModel {
         val currentPresenter =
             lastCustomNonConfigurationInstance
-                    as? LoginFormPresenter
+                    as? LoginFormViewModel
 
-        return currentPresenter ?: LoginFormPresenter(
+        return currentPresenter ?: LoginFormViewModel(
             app.loginFormUsecase
         )
     }
 
     @Deprecated("Deprecated in Java")
     override fun onRetainCustomNonConfigurationInstance(): Any? {
-        return presenter
+        return viewModel
     }
 
     private fun Activity.hideKeyboard() {
