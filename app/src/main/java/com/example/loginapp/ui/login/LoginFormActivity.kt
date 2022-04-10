@@ -13,7 +13,6 @@ import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
 import com.example.loginapp.app
 import com.example.loginapp.databinding.ActivityLoginFormBinding
-import com.example.loginapp.utils.LoginPublisher
 
 const val IS_PRESENTER_RESTORED = "IS_PRESENTER_RESTORED"
 
