@@ -26,6 +26,7 @@ class LoginFormPresenterTest {
         presenter.onViewAttach(view)
     }
 
+
     @Test
     fun processLoadingIsShowing_Test() {
         presenter.onUserLogin("", "")
@@ -49,5 +50,4 @@ class LoginFormPresenterTest {
         presenter.onUserForgotPassword()
         verify(view).showUserForgotPasswordForm()
     }
-
 }
