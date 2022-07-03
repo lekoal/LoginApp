@@ -33,17 +33,13 @@ class LoginFormPresenter(
         username: String,
         password: String
     ) {
-        view?.showLoginProcessLoading(
-            true
-        )
+        showProcessLoading(true)
 
         loginFormUsecase.userLogin(
             username,
             password
         ) { result ->
-            view?.showLoginProcessLoading(
-                false
-            )
+            showProcessLoading(false)
             if (result) {
                 isEnterSuccess = true
                 view?.setUserLoginSuccess(
@@ -56,6 +52,10 @@ class LoginFormPresenter(
                 )
             }
         }
+    }
+
+    private fun showProcessLoading(isLoading: Boolean) {
+        view?.showLoginProcessLoading(isLoading)
     }
 
     override fun onUserRegistration() {
