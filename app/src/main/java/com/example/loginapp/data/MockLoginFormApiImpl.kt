@@ -10,8 +10,8 @@ class MockLoginFormApiImpl : LoginFormApi {
     ): Boolean {
         Thread.sleep(2000)
         if (
-            UserProfileRepoImpl.getUser(username) != null &&
-            UserProfileRepoImpl.getUser(username)?.userPassword == password
+            UserProfileRepoImpl(MockUsersData.userList).getUser(username) != null &&
+            UserProfileRepoImpl(MockUsersData.userList).getUser(username)?.userPassword == password
         ) {
             return true
         }
